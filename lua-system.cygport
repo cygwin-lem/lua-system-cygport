@@ -1,0 +1,98 @@
+NAME="lua-system"
+VERSION=0.2.1
+RELEASE=1
+CATEGORY="Lua"
+SUMMARY="Lua String Hashing/Indexing Library"
+DESCRIPTION="\
+say is a simple string key/value store for i18n or any other case where
+you want namespaced strings.
+"
+HOMEPAGE="https://github.com/o-lim/luasystem/"
+
+GIT_REPO="https://github.com/o-lim/luasystem"
+declare -A GIT_DATEHASH_BY_NAME=(
+  # git log --date=iso-strict --format='%cd/%H' -1
+  [0.2.1]=2016-10-02T23:43:39-07:00/v0.2.1
+)
+REV_HASH="${GIT_DATEHASH_BY_NAME[${VERSION}]#*/}"
+REV_DATE="${GIT_DATEHASH_BY_NAME[${VERSION}]%/*}"
+REV_DATE_SHORT="${REV_DATE%%T*}"
+GIT_BASENAME="${GIT_REPO##*/}"
+SRC_URI="${GIT_REPO}/archive/${REV_HASH}/${GIT_BASENAME}-${VERSION}.tar.gz"
+SRC_DIR="${GIT_BASENAME}-${REV_HASH#v}"
+
+################################
+LUA_VERSIONS="5.3:5.4"
+LUA_PKG_NAME="${NAME#lua-}"
+source lua.experiment
+
+################################
+## Patch files
+################################
+# Patch filenames are in a default style of 'git format-patch'
+PATCH_URI=$(\
+  find -maxdepth 1 -type f -name '[0-9][0-9][0-9][0-9]-*.patch' \
+  | sort \
+)
+# Additional patches, if any
+PATCH_URI+="
+  0.2.1-Makefile.patch
+"
+
+################################
+## Requirements for building
+################################
+BUILD_REQUIRES="\
+  lua53-devel\
+  lua54-devel\
+"
+# TEST_REQUIRES="\
+# "
+
+################################
+ABI=0
+
+
+################################
+_CYGPORT_RESTRICT_postinst_doc_=1
+
+set_packages_lua_versions ${LUA_VERSIONS} ${LUA_PKG_NAME}
+
+################################
+src_compile_lua() {
+  mkdir -p ${B}/${LUA_VERSION}
+  cd  ${B}/${LUA_VERSION}
+
+  lndirs ${S} .
+
+  cygmake \
+    prefix=/usr \
+    LUA_VER=${LUA_VERSION} \
+    LUA_DIR=/usr \
+    CDIR=${LUA_LIBDIR} \
+    LUAINC=${LUA_INCLUDEDIR} \
+    LDIR=${LUA_SCRIPTDIR} \
+    MY_CFLAGS="${CFLAGS} ${LUA_CFLAGS}" \
+    LIBS="${LUA_LIBS}" \
+  ;
+}
+
+################################
+src_install_lua() {
+  cd ${B}/${LUA_VERSION}
+
+  __doinsdir system ${LUA_SCRIPTDIR}/${LUA_PKG_NAME}
+  exeinto ${LUA_LIBDIR}/${LUA_PKG_NAME}
+  doexe src/core.so
+
+  dodoc LICENSE *.md *-${VERSION}-*.rockspec
+}
+
+################################
+src_test_lua() {
+  cd ${B}/${LUA_VERSION}
+
+  echo "No test suite."
+}
+
+################################

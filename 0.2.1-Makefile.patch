@@ -1,0 +1,11 @@
+--- origsrc/luasystem-0.2.1/src/Makefile	2016-10-03 15:43:39.000000000 +0900
++++ src/luasystem-0.2.1/src/Makefile	2021-06-07 09:34:34.034927600 +0900
+@@ -248,7 +248,7 @@ none:
+ all: $(SOLIB)
+ 
+ $(SOLIB): $(OBJS)
+-	$(LD) $(OBJS) $(LDFLAGS)$@
++	$(LD) $(OBJS) $(LDFLAGS)$@ $(LIBS)
+ 
+ install: all
+ 	$(INSTALL_DIR) $(INSTALL_TOP_LDIR)
