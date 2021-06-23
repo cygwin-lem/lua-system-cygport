@@ -1,5 +1,5 @@
 category: Lua
-requires: cygwin lua53 lua54-system lua53
+requires: cygwin lua53
 sdesc: "Lua String Hashing/Indexing Library"
 ldesc: "say is a simple string key/value store for i18n or any other case where
 you want namespaced strings.
